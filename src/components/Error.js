@@ -8,8 +8,11 @@ class Error extends Component {
             <div className='login'>
                 <div className='login-container'>
                     <div className='login-label'>404 Not Found !!</div>
-                    <div>Please re-login to authenticate yourself</div>
-                    <Link style={{ textDecoration: 'none' }} exact to={{ pathname: "/login" }}>Login Page</Link>
+                    <div>Please re-login to see poll</div>
+                    <Link style={{ textDecoration: 'none' }} exact to={{
+                        pathname: "/login",
+                        state: { history: this.props.location.state === undefined ? '/' : this.props.location.state.history }
+                    }}>Login Page</Link>
                 </div>
             </div>
         );

@@ -44,7 +44,9 @@ class Login extends Component {
                     </div>
                     <button onClick={(event) => this.onSubmit(event)}>Submit</button>
                 </div>
-            </div>) : (<Redirect to={{ pathname: '/' }} />)
+            </div>) : this.props.location.state !== undefined ?
+                    <Redirect to={{ pathname: this.props.location.state.history }} /> :
+                    <Redirect to={{ pathname: '/' }} />
         )
     }
 }

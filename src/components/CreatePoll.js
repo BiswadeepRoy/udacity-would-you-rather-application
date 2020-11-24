@@ -36,12 +36,17 @@ class CreatePoll extends Component {
             })
 
             alert('Successfully Added')
+            this.props.history.push(`/`);
         }
     }
 
     render() {
         return (
-            this.props.authedUser === null || this.props.authedUser === undefined ? (<Redirect to={{ pathname: '/error' }} />) :
+            !this.props.authenticate || this.props.authenticate === undefined ?
+                <Redirect to={{
+                    pathname: "/login",
+                    state: { history: '/add' }
+                }} /> :
                 (
                     <div className='home'>
                         <div className='poll-container' style={{ minHeight: '35%' }}>
@@ -77,8 +82,8 @@ class CreatePoll extends Component {
     }
 }
 
-const mapStateToProps = ({ authedUser }) => {
-    return { authedUser }
+const mapStateToProps = ({ authedUser, authenticate }) => {
+    return { authedUser, authenticate }
 }
 
 export default connect(mapStateToProps)(CreatePoll)

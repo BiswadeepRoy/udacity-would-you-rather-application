@@ -46,29 +46,29 @@ export function setAuthedUserAndReceivePolls(authedUser) {
 
 export function addPoll({ optionOneText, optionTwoText, authedUser }) {
     return (dispatch) => {
-        saveQuestion({ optionOneText, optionTwoText, author: authedUser }).
-            then(() => getQuestions().then((questions) => getUsers().then((users) => {
+        saveQuestion({ optionOneText, optionTwoText, author: authedUser }).then(() =>
+            getQuestions().then((questions) => getUsers().then((users) => {
                 dispatch({
                     type: ADD_POLL,
                     users,
                     questions
                 })
             }))
-            )
+        )
     }
 }
 
 export function votePoll({ authedUser, qid, answer }) {
     return (dispatch) => {
-        saveQuestionAnswer({ authedUser, qid, answer }).
-            then(() => getQuestions().then((questions) => getUsers().then((users) => {
+        saveQuestionAnswer({ authedUser, qid, answer }).then(() =>
+            getQuestions().then((questions) => getUsers().then((users) => {
                 dispatch({
                     type: VOTE_POLL,
                     users,
                     questions
                 })
             }))
-            )
+        )
     }
 }
 

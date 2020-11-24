@@ -14,18 +14,22 @@ class Leaderboard extends Component {
     }
 
     state = {
-        users: this.props.authedUser === null || this.props.authedUser === undefined ? null : this.sortUsers(this.props.users)
+        users: !this.props.authenticate || this.props.authenticate === undefined ? null : this.sortUsers(this.props.users)
     }
 
     render() {
         return (
-            this.props.authedUser === null || this.props.authedUser === undefined ? (<Redirect to={{ pathname: '/error' }} />) :
+            !this.props.authenticate || this.props.authenticate === undefined ?
+                <Redirect to={{
+                    pathname: "/login",
+                    state: { history: '/leaderboard' }
+                }} /> :
                 (
                     <div className='home'>
                         <div className='poll-container'>
                             <div className='polls'>
                                 {this.state.users.map((user, index) =>
-                                    (<LeaderSummary
+                                    (<LeaderSummary key={user.id}
                                         avatarUrl={user.avatarURL}
                                         name={user.name}
                                         answers={user.score - user.questions.length}
@@ -40,8 +44,8 @@ class Leaderboard extends Component {
     }
 }
 
-const mapStateToProps = ({ authedUser, users }) => {
-    return { authedUser, users }
+const mapStateToProps = ({ authedUser, users, authenticate }) => {
+    return { authedUser, users, authenticate }
 }
 
 export default connect(mapStateToProps)(Leaderboard)

@@ -21,16 +21,20 @@ class App extends Component {
       <Router>
         <Nav></Nav>
         <Switch>
-          <Route exact path='/' component={Home}></Route>
-          <Route exact path='/login' component={Login}></Route>
-          <Route exact path='/questions/:question_id' component={ViewPoll}></Route>
-          <Route exact path='/add' component={CreatePoll}></Route>
-          <Route exact path='/leaderboard' component={Leaderboard}></Route>
-          <Route exact path='/error' component={Error}></Route>
+          <Route exact path='/login' component={Login} />
+          <Route exact path='/' component={Home} />
+          <Route exact path='/questions/:question_id' component={ViewPoll} />
+          <Route exact path='/add' component={CreatePoll} />
+          <Route exact path='/leaderboard' component={Leaderboard} />
+          <Route exact path='/error' component={Error} />
         </Switch>
       </Router>
     )
   }
 }
 
-export default connect()(App);
+const mapStateToProps = ({ authedUser }) => {
+  return { authedUser }
+}
+
+export default connect(mapStateToProps)(App);

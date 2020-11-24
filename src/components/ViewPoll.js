@@ -28,12 +28,12 @@ class ViewPoll extends Component {
     }
 
     state = {
-        optionText: this.findAnswer(this.props.match.params.question_id, this.props.questions, this.props.authedUser).text,
-        optionChosen: this.findAnswer(this.props.match.params.question_id, this.props.questions, this.props.authedUser).text,
-        active: this.findAnswer(this.props.match.params.question_id, this.props.questions, this.props.authedUser).name,
-        optionOneVotes: this.findVotes(this.props.match.params.question_id, this.props.questions).optionOneVotes,
-        optionTwoVotes: this.findVotes(this.props.match.params.question_id, this.props.questions).optionTwoVotes,
-        totalVotes: this.findVotes(this.props.match.params.question_id, this.props.questions).totalVotes,
+        optionText: this.props.questions ? this.findAnswer(this.props.match.params.question_id, this.props.questions, this.props.authedUser).text : null,
+        optionChosen: this.props.questions ? this.findAnswer(this.props.match.params.question_id, this.props.questions, this.props.authedUser).text : null,
+        active: this.props.questions ? this.findAnswer(this.props.match.params.question_id, this.props.questions, this.props.authedUser).name : null,
+        optionOneVotes: this.props.questions ? this.findVotes(this.props.match.params.question_id, this.props.questions).optionOneVotes : null,
+        optionTwoVotes: this.props.questions ? this.findVotes(this.props.match.params.question_id, this.props.questions).optionTwoVotes : null,
+        totalVotes: this.props.questions ? this.findVotes(this.props.match.params.question_id, this.props.questions).totalVotes : null,
     }
 
     saveAnswer = (event) => {
@@ -55,11 +55,14 @@ class ViewPoll extends Component {
         const { users, questions, avatarURL } = this.props
         const questionId = this.props.match.params.question_id
 
-
         return (
-            this.props.authedUser === null || this.props.authedUser === undefined ? (<Redirect to={{ pathname: '/error' }} />) :
+            !this.props.authenticate || this.props.authenticate === undefined ?
+                <Redirect to={{
+                    pathname: "/error"
+                }} /> :
                 this.state.optionText === null ?
                     <div className='home'>
+                        {console.log(this.state)}
                         <div className='poll-container' style={{ minHeight: '30%' }}>
                             <div className='poll' style={{ height: '100%', margin: 0 }}>
                                 <div className='user-name'>{users[questions[questionId].author].name} asks..</div>
@@ -168,9 +171,9 @@ class ViewPoll extends Component {
 }
 
 
-const mapStateToProps = ({ authedUser, questions, users }, { match }) => {
+const mapStateToProps = ({ authedUser, questions, users, authenticate }, { match }) => {
     const avatarURL = questions ? users[questions[match.params.question_id].author].avatarURL : null
-    return { authedUser, questions, users, avatarURL }
+    return { authedUser, questions, users, avatarURL, authenticate }
 }
 
 export default connect(mapStateToProps)(ViewPoll)

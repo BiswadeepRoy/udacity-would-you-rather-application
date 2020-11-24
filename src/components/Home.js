@@ -12,15 +12,20 @@ class Home extends Component {
 
     render() {
         const answeredQuestions = this.props.authedUser === null || this.props.authedUser === undefined ? [] :
-            Object.keys(this.props.questions).filter(id => this.props.questions[id].optionOne.votes.includes(this.props.authedUser) ||
-                this.props.questions[id].optionTwo.votes.includes(this.props.authedUser))
+            Object.keys(this.props.questions).filter(id =>
+                this.props.questions[id].optionOne.votes.includes(this.props.authedUser) ||
+                this.props.questions[id].optionTwo.votes.includes(this.props.authedUser)).sort((a, b) =>
+                    this.props.questions[b].timestamp - this.props.questions[a].timestamp)
 
         const unansweredQuestions = this.props.authedUser === null || this.props.authedUser === undefined ? [] :
-            Object.keys(this.props.questions).filter(id => !this.props.questions[id].optionOne.votes.includes(this.props.authedUser) &&
-                !this.props.questions[id].optionTwo.votes.includes(this.props.authedUser))
+            Object.keys(this.props.questions).filter(id =>
+                !this.props.questions[id].optionOne.votes.includes(this.props.authedUser) &&
+                !this.props.questions[id].optionTwo.votes.includes(this.props.authedUser)).sort((a, b) =>
+                    this.props.questions[b].timestamp - this.props.questions[a].timestamp)
 
         return (
-            this.props.authedUser === null || this.props.authedUser === undefined ? (<Redirect to={{ pathname: '/login' }} />) :
+            this.props.authedUser === null || this.props.authedUser === undefined ?
+                <Redirect to={{ pathname: '/login' }} /> :
 
                 this.state.questionId !== null ? (<Redirect to={{ pathname: '/questions/' + this.state.questionId }} />) :
 
