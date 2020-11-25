@@ -1,13 +1,17 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCheckCircle } from '@fortawesome/free-solid-svg-icons'
 import { votePoll } from '../actions'
 import { Redirect } from 'react-router-dom'
+import VotePoll from './VotePoll'
+import PollResults from './PollResults'
 
 class ViewPoll extends Component {
 
     findAnswer = (questionId, questions, authedUser) => {
+        console.log({ authedUser, questions, authedUser })
+        if (questions[questionId] === undefined) {
+            return { text: 'notvalid', name: 'notvalid' }
+        }
         if (questions[questionId].optionOne.votes.includes(authedUser)) {
             return { text: questions[questionId].optionOne.text, name: 'optionOne' }
         }
@@ -20,6 +24,13 @@ class ViewPoll extends Component {
     }
 
     findVotes = (questionId, questions) => {
+        if (questions[questionId] === undefined) {
+            return {
+                optionOneVotes: 'notvalid',
+                optionTwoVotes: 'notvalid',
+                totalVotes: 'notvalid'
+            }
+        }
         return {
             optionOneVotes: questions[questionId].optionOne.votes.length,
             optionTwoVotes: questions[questionId].optionTwo.votes.length,
@@ -50,121 +61,59 @@ class ViewPoll extends Component {
         })
     }
 
+    setAnswer = (text, option) => {
+        this.setState({
+            optionChosen: text,
+            active: option
+        })
+    }
+
     render() {
 
-        const { users, questions, avatarURL } = this.props
+        const { users, questions } = this.props
         const questionId = this.props.match.params.question_id
 
         return (
             !this.props.authenticate || this.props.authenticate === undefined ?
                 <Redirect to={{
-                    pathname: "/error"
+                    pathname: "/login",
+                    state: { history: '/questions/' + questionId }
                 }} /> :
-                this.state.optionText === null ?
-                    <div className='home'>
-                        {console.log(this.state)}
-                        <div className='poll-container' style={{ minHeight: '30%' }}>
-                            <div className='poll' style={{ height: '100%', margin: 0 }}>
-                                <div className='user-name'>{users[questions[questionId].author].name} asks..</div>
-                                <div className='summary'>
-                                    <div className='avatar'><img src={avatarURL} alt={users[questions[questionId].author].name} /></div>
-                                    <div className='question'>
-                                        <div style={{ fontWeight: '700', fontSize: '1.2em' }}>Would you rather</div>
+                this.props.authenticate && (this.state.optionText === 'notvalid' || this.state.optionChosen === 'notvalid') ?
+                    <Redirect to={{
+                        pathname: "/error",
 
-                                        {this.state.active === 'optionOne' ?
-                                            <div className='option active-option' onClick={() => {
-                                                this.setState({
-                                                    optionChosen: questions[questionId].optionOne.text,
-                                                    active: 'optionOne'
-                                                })
-                                            }}>
-                                                {questions[questionId].optionOne.text} </div>
-                                            : <div className='option' onClick={() => {
-                                                this.setState({
-                                                    optionChosen: questions[questionId].optionOne.text,
-                                                    active: 'optionOne'
-                                                })
-                                            }}>
-                                                {questions[questionId].optionOne.text} </div>}
-
-
-                                        {this.state.active === 'optionTwo' ?
-                                            <div className='option active-option' onClick={() => {
-                                                this.setState({
-                                                    optionChosen: questions[questionId].optionTwo.text,
-                                                    active: 'optionTwo'
-                                                })
-                                            }}>
-                                                {questions[questionId].optionTwo.text} </div>
-                                            : <div className='option' onClick={() => {
-                                                this.setState({
-                                                    optionChosen: questions[questionId].optionTwo.text,
-                                                    active: 'optionTwo'
-                                                })
-                                            }}>
-                                                {questions[questionId].optionTwo.text} </div>}
-
-                                        <button style={{ padding: 10, fontSize: '1em' }} onClick={(event) => this.saveAnswer(event)}>Submit Poll</button>
-                                    </div>
+                    }} /> :
+                    this.state.optionText === null ?
+                        <div className='home'>
+                            <div className='poll-container' style={{ minHeight: '30%' }}>
+                                <div className='poll' style={{ height: '100%', margin: 0 }}>
+                                    <div className='user-name'>{users[questions[questionId].author].name} asks..</div>
+                                    <VotePoll
+                                        avatarUrl={users[questions[questionId].author].avatarURL}
+                                        question={questions[questionId]}
+                                        saveAnswer={this.saveAnswer}
+                                        setAnswer={this.setAnswer}
+                                        active={this.state.active}
+                                    />
+                                </div>
+                            </div>
+                        </div> :
+                        <div className='home'>
+                            <div className='poll-container' style={{ minHeight: '30%' }}>
+                                <div className='poll' style={{ height: '100%', margin: 0 }}>
+                                    <div className='user-name'>{users[questions[questionId].author].name} asks..</div>
+                                    <PollResults
+                                        avatarUrl={users[questions[questionId].author].avatarURL}
+                                        question={questions[questionId]}
+                                        active={this.state.active}
+                                        optionOneVotes={this.state.optionOneVotes}
+                                        optionTwoVotes={this.state.optionTwoVotes}
+                                        totalVotes={this.state.totalVotes}
+                                    />
                                 </div>
                             </div>
                         </div>
-                    </div> :
-                    <div className='home'>
-                        <div className='poll-container' style={{ minHeight: '30%' }}>
-                            <div className='poll' style={{ height: '100%', margin: 0 }}>
-                                <div className='user-name'>{users[questions[questionId].author].name} asks..</div>
-                                <div className='summary'>
-                                    <div className='avatar'><img src={avatarURL} alt={users[questions[questionId].author].name} /></div>
-                                    <div className='question'>
-                                        <div style={{ fontWeight: '700', fontSize: '1.2em' }}>Would you rather</div>
-
-                                        {this.state.active === 'optionOne' ?
-                                            <div className='option active-option' style={{ cursor: 'context-menu' }}>
-                                                {questions[questionId].optionOne.text} <FontAwesomeIcon icon={faCheckCircle} />
-                                                <div className='loader-box'>
-                                                    <div className='loader' style={{ width: `${parseInt((this.state.optionOneVotes / this.state.totalVotes) * 100, 10)}%` }}>
-                                                        {parseInt((this.state.optionOneVotes / this.state.totalVotes) * 100, 10)}%
-                                            </div>
-                                                </div>
-                                                <div style={{ width: '100%', textAlign: 'center' }}>{this.state.optionOneVotes} out of {this.state.totalVotes} votes</div>
-                                            </div>
-                                            : <div className='option' >
-                                                {questions[questionId].optionOne.text}
-                                                <div className='loader-box'>
-                                                    <div className='loader' style={{ width: `${parseInt((this.state.optionOneVotes / this.state.totalVotes) * 100, 10)}%` }}>
-                                                        {parseInt((this.state.optionOneVotes / this.state.totalVotes) * 100, 10)}%
-                                            </div>
-                                                </div>
-                                                <div style={{ width: '100%', textAlign: 'center' }}>{this.state.optionOneVotes} out of {this.state.totalVotes}  votes</div>
-                                            </div>}
-
-
-                                        {this.state.active === 'optionTwo' ?
-                                            <div className='option active-option' style={{ cursor: 'context-menu' }}>
-                                                {questions[questionId].optionTwo.text} <FontAwesomeIcon icon={faCheckCircle} />
-                                                <div className='loader-box'>
-                                                    <div className='loader' style={{ width: `${parseInt((this.state.optionTwoVotes / this.state.totalVotes) * 100, 10)}%` }}>
-                                                        {parseInt((this.state.optionTwoVotes / this.state.totalVotes) * 100, 10)}%
-                                            </div>
-                                                </div>
-                                                <div style={{ width: '100%', textAlign: 'center' }}>{this.state.optionTwoVotes} out of {this.state.totalVotes}  votes</div>
-                                            </div>
-                                            : <div className='option' >
-                                                {questions[questionId].optionTwo.text}
-                                                <div className='loader-box'>
-                                                    <div className='loader' style={{ width: `${parseInt((this.state.optionTwoVotes / this.state.totalVotes) * 100, 10)}%` }}>
-                                                        {parseInt((this.state.optionTwoVotes / this.state.totalVotes) * 100, 10)}%
-                                            </div>
-                                                </div>
-                                                <div style={{ width: '100%', textAlign: 'center' }}>{this.state.optionTwoVotes} out of {this.state.totalVotes}  votes</div>
-                                            </div>}
-
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
         )
     }
@@ -172,8 +121,8 @@ class ViewPoll extends Component {
 
 
 const mapStateToProps = ({ authedUser, questions, users, authenticate }, { match }) => {
-    const avatarURL = questions ? users[questions[match.params.question_id].author].avatarURL : null
-    return { authedUser, questions, users, avatarURL, authenticate }
+    console.log({ authedUser, questions, users, authenticate })
+    return { authedUser, questions, users, authenticate }
 }
 
 export default connect(mapStateToProps)(ViewPoll)
